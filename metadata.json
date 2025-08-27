@@ -1,0 +1,7 @@
+{
+  "name": "Sistema de Gestión Escolar AI",
+  "description": "Una aplicación de panel para gestionar estudiantes, cursos y obtener asistencia de una IA. Creado con React, TypeScript y Tailwind CSS, impulsado por la API de Gemini.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
