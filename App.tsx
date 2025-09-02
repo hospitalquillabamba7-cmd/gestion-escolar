@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { Student, Course, View, Teacher, Notification } from './types';
+import { Student, Course, View, Teacher, Notification, AttendanceRecord } from './types';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import StudentManager from './components/StudentManager';
 import CourseManager from './components/CourseManager';
 import AIAssistant from './components/AIAssistant';
 import TeacherManager from './components/TeacherManager';
+import AttendanceManager from './components/AttendanceManager';
 import Modal from './components/Modal';
 
 // --- Confirmation Modal Component ---
@@ -50,14 +51,14 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   const [logoImageUrl, setLogoImageUrl] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([
-    { id: 'S001', name: 'Ana García', age: 15, grade: '10º', courseIds: ['C01'], courseHistory: [
+    { id: '78945612', name: 'Ana García', age: 15, grade: '10º', courseIds: ['C01'], courseHistory: [
         { id: 'CH01', name: 'Introducción a la Programación', teacher: 'Sr. Salas' },
         { id: 'CH02', name: 'Química General', teacher: 'Sra. Rios' },
     ], profilePictureUrl: null},
-    { id: 'S002', name: 'Luis Fernández', age: 16, grade: '11º', courseIds: ['C01', 'C03'], courseHistory: [
+    { id: '78123456', name: 'Luis Fernández', age: 16, grade: '11º', courseIds: ['C01', 'C03'], courseHistory: [
         { id: 'CH03', name: 'Literatura Española', teacher: 'Sra. Vega' }
     ], profilePictureUrl: null},
-    { id: 'S003', name: 'Elena Rodríguez', age: 14, grade: '9º', courseIds: ['C02'], profilePictureUrl: null },
+    { id: '78789012', name: 'Elena Rodríguez', age: 14, grade: '9º', courseIds: ['C02'], profilePictureUrl: null },
   ]);
   const [courses, setCourses] = useState<Course[]>([
     { id: 'C01', name: 'Matemáticas Avanzadas', teacher: 'Ricardo Pérez' },
@@ -92,6 +93,8 @@ const App: React.FC = () => {
       read: true,
     },
   ]);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+
   const [confirmation, setConfirmation] = useState<{
     isOpen: boolean;
     title: string;
@@ -114,8 +117,8 @@ const App: React.FC = () => {
     setConfirmation(null);
   };
 
-  const addStudent = useCallback((student: Omit<Student, 'id' | 'profilePictureUrl'>) => {
-    setStudents(prev => [...prev, { ...student, id: `S${Date.now()}`, courseIds: [], profilePictureUrl: null }]);
+  const addStudent = useCallback((student: Pick<Student, 'id' | 'name' | 'age' | 'grade'>) => {
+    setStudents(prev => [...prev, { ...student, courseIds: [], profilePictureUrl: null }]);
   }, []);
 
   const deleteStudent = useCallback((studentId: string) => {
@@ -201,6 +204,45 @@ const App: React.FC = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   }, []);
 
+  const handleCheckIn = useCallback((studentId: string) => {
+    const student = students.find(s => s.id === studentId);
+    if (!student) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const hasActiveCheckIn = attendanceRecords.some(
+      r => r.studentId === studentId && r.checkInTime.startsWith(today) && r.status === 'Checked In'
+    );
+
+    if (hasActiveCheckIn) {
+      console.warn("Student already checked in today.");
+      return;
+    }
+
+    const newRecord: AttendanceRecord = {
+      id: `ATT${Date.now()}`,
+      studentId,
+      studentName: student.name,
+      checkInTime: new Date().toISOString(),
+      checkOutTime: null,
+      status: 'Checked In',
+    };
+
+    setAttendanceRecords(prev => [...prev, newRecord]);
+  }, [students, attendanceRecords]);
+
+  const handleCheckOut = useCallback((studentId: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    setAttendanceRecords(prev =>
+      prev.map(r => {
+        if (r.studentId === studentId && r.checkInTime.startsWith(today) && r.status === 'Checked In') {
+          return { ...r, checkOutTime: new Date().toISOString(), status: 'Checked Out' };
+        }
+        return r;
+      })
+    );
+  }, []);
+
 
   const renderContent = () => {
     switch (currentView) {
@@ -232,6 +274,13 @@ const App: React.FC = () => {
           addCourse={addCourse} 
           deleteCourse={deleteCourse} 
           showConfirmation={showConfirmation}
+        />;
+      case View.ATTENDANCE:
+        return <AttendanceManager
+          students={students}
+          attendanceRecords={attendanceRecords}
+          handleCheckIn={handleCheckIn}
+          handleCheckOut={handleCheckOut}
         />;
       case View.AI_ASSISTANT:
         return <AIAssistant />;

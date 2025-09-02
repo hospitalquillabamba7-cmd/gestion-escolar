@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Notification } from '../types';
-import { DashboardIcon, StudentsIcon, CoursesIcon, AIIcon, TeachersIcon, BellIcon } from './icons';
+import { DashboardIcon, StudentsIcon, CoursesIcon, AIIcon, TeachersIcon, BellIcon, ClockIcon } from './icons';
 
 interface HeaderProps {
   currentView: View;
@@ -33,6 +33,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView, notificati
     { view: View.STUDENTS, label: 'Estudiantes', icon: <StudentsIcon className="w-5 h-5" /> },
     { view: View.TEACHERS, label: 'Profesores', icon: <TeachersIcon className="w-5 h-5" /> },
     { view: View.COURSES, label: 'Cursos', icon: <CoursesIcon className="w-5 h-5" /> },
+    { view: View.ATTENDANCE, label: 'Asistencia', icon: <ClockIcon className="w-5 h-5" /> },
     { view: View.AI_ASSISTANT, label: 'Asistente IA', icon: <AIIcon className="w-5 h-5" /> },
   ];
 

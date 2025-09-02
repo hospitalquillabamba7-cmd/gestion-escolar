@@ -26,6 +26,7 @@ export enum View {
   STUDENTS = 'STUDENTS',
   TEACHERS = 'TEACHERS',
   COURSES = 'COURSES',
+  ATTENDANCE = 'ATTENDANCE',
   AI_ASSISTANT = 'AI_ASSISTANT',
 }
 
@@ -41,4 +42,13 @@ export interface Notification {
   message: string;
   date: string;
   read: boolean;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  studentId: string;
+  studentName: string;
+  checkInTime: string; // ISO string for easier state management
+  checkOutTime: string | null;
+  status: 'Checked In' | 'Checked Out';
 }

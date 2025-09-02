@@ -7,7 +7,7 @@ import IDCardGenerator from './IDCardGenerator';
 interface StudentManagerProps {
   students: Student[];
   courses: Course[];
-  addStudent: (student: Omit<Student, 'id' | 'profilePictureUrl'>) => void;
+  addStudent: (student: Pick<Student, 'id' | 'name' | 'age' | 'grade'>) => void;
   deleteStudent: (studentId: string) => void;
   assignCoursesToStudent: (studentId: string, courseIds: string[]) => void;
   addCourseToStudentHistory: (studentId: string, courseId: string) => void;
@@ -23,7 +23,7 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedStudentIdForIdCard, setSelectedStudentIdForIdCard] = useState<string | null>(null);
   const [assignedCourseIds, setAssignedCourseIds] = useState<Set<string>>(new Set());
-  const [newStudent, setNewStudent] = useState({ name: '', age: '', grade: '' });
+  const [newStudent, setNewStudent] = useState({ id: '', name: '', age: '', grade: '' });
   const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
   const [courseToAdd, setCourseToAdd] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,9 +45,9 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newStudent.name && newStudent.age && newStudent.grade) {
-      addStudent({ name: newStudent.name, age: Number(newStudent.age), grade: newStudent.grade });
-      setNewStudent({ name: '', age: '', grade: '' });
+    if (newStudent.id && newStudent.name && newStudent.age && newStudent.grade) {
+      addStudent({ id: newStudent.id, name: newStudent.name, age: Number(newStudent.age), grade: newStudent.grade });
+      setNewStudent({ id: '', name: '', age: '', grade: '' });
       setIsModalOpen(false);
     }
   };
@@ -118,7 +118,7 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
 
   const handleExportToCSV = () => {
     const headers = [
-      "ID del Estudiante",
+      "DNI",
       "Nombre",
       "Edad",
       "Grado",
@@ -214,6 +214,7 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
+                <th scope="col" className="px-6 py-3">DNI</th>
                 <th scope="col" className="px-6 py-3">Nombre</th>
                 <th scope="col" className="px-6 py-3">Edad</th>
                 <th scope="col" className="px-6 py-3">Grado</th>
@@ -225,6 +226,7 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
               {filteredStudents.map((student) => (
                 <React.Fragment key={student.id}>
                   <tr className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{student.id}</td>
                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{student.name}</td>
                     <td className="px-6 py-4">{student.age}</td>
                     <td className="px-6 py-4">{student.grade}</td>
@@ -275,7 +277,7 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
                   </tr>
                   {expandedStudentId === student.id && (
                     <tr className="bg-gray-50 dark:bg-gray-900/50 transition-all duration-300">
-                      <td colSpan={5} className="p-4 sm:p-6">
+                      <td colSpan={6} className="p-4 sm:p-6">
                         <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-700/50">
                           <h4 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-3 border-b pb-2 dark:border-gray-600">Historial de Cursos Completados</h4>
                           {(student.courseHistory && student.courseHistory.length > 0) ? (
@@ -332,6 +334,10 @@ const StudentManager: React.FC<StudentManagerProps> = ({ students, courses, addS
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Añadir Nuevo Estudiante">
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
+             <div>
+              <label htmlFor="id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">DNI</label>
+              <input type="text" name="id" id="id" value={newStudent.id} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" required pattern="\d{8}" title="El DNI debe contener 8 dígitos." />
+            </div>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
               <input type="text" name="name" id="name" value={newStudent.name} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" required />

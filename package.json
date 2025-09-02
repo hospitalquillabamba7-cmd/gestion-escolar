@@ -13,7 +13,8 @@
     "@google/genai": "^1.15.0",
     "react-dom": "^19.1.1",
     "qrcode": "^1.5.3",
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "jsqr": "^1.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
